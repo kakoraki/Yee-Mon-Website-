@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Snake Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      font-family: sans-serif;
+      color: white;
+      gap: 10px;
+    }
+    canvas {
+      background: #222;
+      border: 2px solid #00ff00;
+      touch-action: none;
+    }
+    #controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    button, select {
+      padding: 5px 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+    }
+    #score {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+
+#joystick-area {
+  position: absolute;
+  bottom: 30px;
+  left: 30px;
+  width: 120px;
+  height: 120px;
+}
+
+#joystick-base {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.2);
+  border: 2px solid lime;
+  border-radius: 50%;
+  position: relative;
+}
+
+#joystick-thumb {
+  width: 40px;
+  height: 40px;
+  background: lime;
+  border-radius: 50%;
+  position: absolute;
+  top: 40px;
+  left: 40px;
+}
+  </style>
+</head>
+<body>
+  
+
+  <h1>Snake Game</h1>
+  <div id="controls">
+  <button onclick="restartGame()">★ Restart</button>
+  <label>Skin:
+    <select id="skin">
+      <option value="green">Green</option>
+      <option value="blue">Blue</option>
+      <option value="red">Red</option>
+      <option value="rainbow">Rainbow</option>
+    </select>
+  </label>
+  <label>Level:
+    <select id="level">
+      <option value="150">Easy</option>
+      <option value="100">Medium</option>
+      <option value="60">Hard</option>
+    </select>
+  </label>
+</div>
+
+  <div id="score">Score: 0</div>
+  <canvas id="game" width="300" height="300"></canvas>
+<div id="joystick-area">
+  <div id="joystick-base">
+    <div id="joystick-thumb"></div>
+  </div>
+</div>
+  <!-- rest of your controls -->
+  <!-- HTML, CSS အပေါ်က code နဲ့တူတယ်, ဒါကြောင့်ဒီမှာ JS တစ်ခြန်းကိုပဲပြောင်းပြမယ် -->
+<script>
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const box = 15;
+  let snake, direction, food, score, gameInterval;
+  let goldenFood = null;
+  let poisonFood = null;
+
+  const skins = {
+    green: ['#0f0', '#0b0'],
+    blue: ['#00f', '#00a'],
+    red: ['#f00', '#a00'],
+    rainbow: ['#ff0', '#0ff', '#f0f', '#0f0', '#f90']
+  };
+
+  function randomPos() {
+    return {
+      x: Math.floor(Math.random() * (canvas.width / box)) * box,
+      y: Math.floor(Math.random() * (canvas.height / box)) * box
+    };
+  }
+
+  function spawnFood() {
+    return randomPos();
+  }
+
+  function maybeSpawnSpecials() {
+    if (Math.random() < 0.1) goldenFood = randomPos();
+    if (Math.random() < 0.05) poisonFood = randomPos();
+  }
+
+  function restartGame() {
+    snake = [{ x: 150, y: 150 }];
+    direction = 'RIGHT';
+    food = spawnFood();
+    goldenFood = null;
+    poisonFood = null;
+    score = 0;
+    document.getElementById('score').textContent = 'Score: 0';
+    if (gameInterval) clearInterval(gameInterval);
+    const speed = parseInt(document.getElementById('level').value);
+    gameInterval = setInterval(draw, speed);
+  }
+
+  function collision(head) {
+    return snake.slice(1).some(segment => segment.x === head.x && segment.y === head.y);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw snake
+    const selectedSkin = document.getElementById('skin').value;
+    const colors = skins[selectedSkin];
+    for (let i = 0; i < snake.length; i++) {
+      ctx.fillStyle = Array.isArray(colors)
+        ? colors[i % colors.length]
+        : colors;
+      ctx.fillRect(snake[i].x, snake[i].y, box, box);
+    }
+
+    // Draw food
+    ctx.fillStyle = 'red';
+    ctx.fillRect(food.x, food.y, box, box);
+
+    if (goldenFood) {
+      ctx.fillStyle = 'gold';
+      ctx.fillRect(goldenFood.x, goldenFood.y, box, box);
+    }
+
+    if (poisonFood) {
+      ctx.fillStyle = 'purple';
+      ctx.fillRect(poisonFood.x, poisonFood.y, box, box);
+    }
+
+    // Snake movement
+    const head = { x: snake[0].x, y: snake[0].y };
+    if (direction === 'LEFT') head.x -= box;
+    if (direction === 'UP') head.y -= box;
+    if (direction === 'RIGHT') head.x += box;
+    if (direction === 'DOWN') head.y += box;
+
+    if (head.x < 0 || head.y < 0 || head.x >= canvas.width || head.y >= canvas.height || collision(head)) {
+      alert("Game Over! Score: " + score);
+      restartGame();
+      return;
+    }
+
+    snake.unshift(head);
+
+    let ate = false;
+
+    if (head.x === food.x && head.y === food.y) {
+      score++;
+      food = spawnFood();
+      maybeSpawnSpecials();
+      ate = true;
+    } else if (goldenFood && head.x === goldenFood.x && head.y === goldenFood.y) {
+      score += 5;
+      goldenFood = null;
+      ate = true;
+    } else if (poisonFood && head.x === poisonFood.x && head.y === poisonFood.y) {
+      score -= 3;
+      poisonFood = null;
+      // shorten body
+      snake.splice(-2, 2);
+    }
+
+    if (!ate) snake.pop();
+
+    document.getElementById('score').textContent = 'Score: ' + score;
+  }
+
+  // Input & touch control (same as before)
+  document.addEventListener('keydown', (e) => {
+    const key = e.key;
+    if (key === 'ArrowLeft' && direction !== 'RIGHT') direction = 'LEFT';
+    if (key === 'ArrowUp' && direction !== 'DOWN') direction = 'UP';
+    if (key === 'ArrowRight' && direction !== 'LEFT') direction = 'RIGHT';
+    if (key === 'ArrowDown' && direction !== 'UP') direction = 'DOWN';
+  });
+
+  let startX = 0, startY = 0;
+  canvas.addEventListener('touchstart', e => {
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+  canvas.addEventListener('touchmove', e => {
+    const touch = e.touches[0];
+    const dx = touch.clientX - startX;
+    const dy = touch.clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 0 && direction !== 'LEFT') direction = 'RIGHT';
+      else if (dx < 0 && direction !== 'RIGHT') direction = 'LEFT';
+    } else {
+      if (dy > 0 && direction !== 'UP') direction = 'DOWN';
+      else if (dy < 0 && direction !== 'DOWN') direction = 'UP';
+    }
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+
+  restartGame();
+const joystickArea = document.getElementById('joystick-area');
+const joystickThumb = document.getElementById('joystick-thumb');
+const baseX = joystickArea.offsetLeft + 60;
+const baseY = joystickArea.offsetTop + 60;
+
+let isDragging = false;
+
+joystickArea.addEventListener('touchstart', (e) => {
+  isDragging = true;
+});
+
+joystickArea.addEventListener('touchend', () => {
+  isDragging = false;
+  joystickThumb.style.top = '40px';
+  joystickThumb.style.left = '40px';
+});
+
+joystickArea.addEventListener('touchmove', (e) => {
+  if (!isDragging) return;
+
+  const touch = e.touches[0];
+  const dx = touch.clientX - baseX;
+  const dy = touch.clientY - baseY;
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+
+  // Move the joystick thumb
+  const distance = Math.min(40, Math.hypot(dx, dy));
+  const rad = angle * (Math.PI / 180);
+  const x = 40 + distance * Math.cos(rad);
+  const y = 40 + distance * Math.sin(rad);
+  joystickThumb.style.left = `${x}px`;
+  joystickThumb.style.top = `${y}px`;
+
+  // Direction logic
+  if (Math.abs(dx) > Math.abs(dy)) {
+    if (dx > 0 && direction !== 'LEFT') direction = 'RIGHT';
+    else if (dx < 0 && direction !== 'RIGHT') direction = 'LEFT';
+  } else {
+    if (dy > 0 && direction !== 'UP') direction = 'DOWN';
+    else if (dy < 0 && direction !== 'DOWN') direction = 'UP';
+  }
+});
+</script>
+</body>
