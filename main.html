@@ -1,0 +1,179 @@
+<html>
+<head><style>
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+header.hero {
+  background: #333;
+  color: white;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.hero span {
+  color: #FFD700;
+}
+
+section {
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.skills ul {
+  list-style: none;
+  padding: 0;
+}
+
+.skills li {
+  display: inline-block;
+  margin: 10px;
+  background: #eee;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
+.project-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact {
+  background: #f2f2f2;
+}
+.navbar {
+  background: #222;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.logo {
+  color: white;
+  font-weight: bold;
+}
+
+.hamburger {
+  display: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links li a:hover {
+  color: #FFD700;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    background: #333;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+}</style>
+<body>
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo">MyPortfolio</div>
+    <div class="hamburger" id="hamburger">
+      &#9776;
+    </div>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="main.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="game.html">Games Page </a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+  <header class="hero">
+    <h1>Hello, I'm <span>Yee Mon</span></h1>
+    <p>Beginner Frontend Developer & Board Game Lover</p>
+  </header>
+
+  <section id="about">
+    <h2>About Me</h2>
+    <p>I love building beautiful, responsive websites. I enjoy working with HTML, CSS and learning JavaScript.</p>
+  </section>
+
+  <section id="skills">
+    <h2>Skills</h2>
+    <ul>
+      <li>Beginner HTML5</li>
+      <li>Beginner CSS3</li>
+      <li>Chess Rapid 800</li>
+    </ul>
+  </section>
+
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="project-list">
+      <div class="project">
+        <h3>Creating Web Designs And Games Page</h3>
+        <p>Small Web and Games Page</p>
+      </div>
+     <h1>Game Page</h1>
+     <div>
+       <img src="images/snack.jpg" alt="Snake Game" width="75">
+     <img src="images/memory.jpg" alt="Memory Card Game" width="75">
+     </div>
+      <a href="game.html">
+  <button>Game Page</button>
+</a>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <p>Email: meverick.offical@gmail.com</p>
+    <p>Phone: 09-988735959</p>
+  </section>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('show');
+  });
+</script>
+</body>
+</html>
